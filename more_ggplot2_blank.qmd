@@ -1,0 +1,153 @@
+---
+title: "Introduction to Data Visualization (Part 2)"
+author: "Reiko Okamoto"
+date: "2023-07-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+```
+
+## ❓ Course information
+
+-   Code will be made available on [GitHub](https://github.com/RLadies-Ottawa/2024-02-22_ggplot2-part-02).
+
+    -   You can clone the repository or download a zip file of the latest version of the source code.
+
+-   Your project on Posit Cloud will be deleted after 2 weeks; please export it if you wish to have a local copy.
+
+-   This workshop was originally developed for the [NRC Women in Science and Innovation Coding Group](https://github.com/yoitsjenna/nRc-WiSI).
+
+-   📣 indicates instructions and 💡 indicates tips.
+
+## ⏪ What did we discuss last time?
+
+-   Packages contain code, documentation, and sample data in a standardized format that can be installed by users.
+
+-   tidyverse is a collection of popular packages (i.e., a meta-package) designed for data science.
+
+-   [ggplot2](https://github.com/tidyverse/ggplot2) and [dplyr](https://github.com/tidyverse/dplyr) are packages for data visualization and manipulation, respectively.
+
+-   Creating a ggplot2 object is like building a layered cake!
+
+    ![](template.PNG){width="500"}
+
+## 📊 Bar plots (10 min, 12:10 pm)
+
+📣 Read the data from last class:
+
+```{r import-data}
+# YOUR CODE HERE
+```
+
+💡 Each row summarizes information on trips from one station to another for a given month and year.
+
+-   E.g., the first row captures information on trips from **AIX EN PROVENCE** (Aix-en-Provence) to **PARIS LYON** (Paris-Gare-de-Lyon) for the month of **JANUARY 2015.**
+
+📣 Create a grouped bar plot to compare the number of departures from Paris-Nord in 2015 and 2016, by destination:
+
+```{r bar-plot}
+# YOUR CODE HERE
+```
+
+📣 Create a horizontal bar plot:
+
+```{r h-bar-plot}
+# YOUR CODE HERE
+```
+
+## 🖌️ Changing colors (10 min, 12:20 pm)
+
+📣 Change colors manually:
+
+```{r change-fill-manual}
+# YOUR CODE HERE
+```
+
+💡 Use `scale_fill_*()` for bar, box, and violin plots; use `scale_color_*()` for scatter and line plots. We'll use the latter function in just a bit.
+
+📣 Change colors using the [RColorBrewer](https://r-graph-gallery.com/38-rcolorbrewers-palettes.html) package:
+
+```{r change-fill-brewer}
+# YOUR CODE HERE
+```
+
+📣 An estimated 2.6 million Canadians are colorblind. Create a colorblind-friendly plot using the RColorBrewer package:
+
+```{r change-fill-colorblind}
+# YOUR CODE HERE
+```
+
+## 📈 Plots, plots, plots, plots, plots, plots (10 min, 12:30 pm)
+
+📣 Create a box plot to show the distribution of the monthly number of trips from Paris-Gare-de-Lyon for each international destination:
+
+```{r box-plot}
+# YOUR CODE HERE
+```
+
+📣 Change one line of code to visualize the distributions using a violin plot:
+
+```{r violin-plot}
+# YOUR CODE HERE
+```
+
+> A violin plot is more informative than a plain box plot. While a box plot only shows summary statistics such as mean/median and interquartile ranges, the violin plot shows the full distribution of the data. The difference is particularly useful when the data distribution is multimodal (more than one peak).
+
+— [Violin plot - Wikipedia](https://en.wikipedia.org/wiki/Violin_plot#:~:text=A%20violin%20plot%20is%20more,(more%20than%20one%20peak).)
+
+📣 Create a line plot to show how the monthly number of trips from Paris to multiple cities in Brittany fluctuate over time. Use **facets** to organize multiple line plots into a panel (i.e., one plot for 2015, another for 2016, and so on):
+
+```{r facet}
+# YOUR CODE HERE
+```
+
+💡 Organizing a sequence of panels in this fashion might be an appropriate use of screen space in some cases.
+
+## ✏️ Changing the look and feel (10 min, 12:40 pm)
+
+📣 Create a line plot to show how the monthly number of trips from Paris to multiple cities in Brittany fluctuate over time (from last class):
+
+1.  Force the y-axis to start at 0.
+
+2.  Add year-month labels to the x-axis.
+
+3.  Apply [pre-existing themes](https://ggplot2.tidyverse.org/reference/ggtheme.html).
+
+4.  Change elements that are specified by the theme.
+
+```{r look-and-feel}
+# YOUR CODE HERE
+```
+
+💡 Modify the theme to customize the non-data components of your plots (e.g., titles, labels, grid lines). Make sure to call `theme_minimal()` before `theme()` or else the modifications you have specified will be overwritten.
+
+📣 Save and apply our custom theme:
+
+```{r apply-custom-theme}
+# YOUR CODE HERE
+```
+
+💡 A system like this allows us to systematically make the same changes across multiple plots with less typing!
+
+## 💾 Saving our masterpieces (2 min, 12:45 pm)
+
+```{r ggsave}
+# YOUR CODE HERE
+```
+
+💡 By default, if you don't specify the `plot` argument, the function will save the last plot displayed.
+
+## 📚 Extra resources (3 min, 12:47 pm)
+
+-   ⭐[From data to Viz \| Find the graphic you need (data-to-viz.com)](https://www.data-to-viz.com/)
+
+-   ⭐[Be Awesome in ggplot2: A Practical Guide to be Highly Effective - R software and data visualization - Easy Guides - Wiki - STHDA](http://www.sthda.com/english/wiki/be-awesome-in-ggplot2-a-practical-guide-to-be-highly-effective-r-software-and-data-visualization)
+
+-   [Modify components of a theme --- theme • ggplot2 (tidyverse.org)](https://ggplot2.tidyverse.org/reference/theme.html)
+
+-   [Get, set, and modify the active theme --- theme_get • ggplot2 (tidyverse.org)](https://ggplot2.tidyverse.org/reference/theme_get.html)

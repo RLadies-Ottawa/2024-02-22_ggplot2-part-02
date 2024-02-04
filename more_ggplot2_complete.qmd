@@ -1,0 +1,219 @@
+---
+title: "Introduction to Data Visualization (Part 2)"
+author: "Reiko Okamoto"
+date: "2023-07-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+```
+
+## ❓ Course information
+
+-   Code will be made available on [GitHub](https://github.com/RLadies-Ottawa/2024-02-22_ggplot2-part-02).
+
+    -   You can clone the repository or download a zip file of the latest version of the source code.
+
+-   Your project on Posit Cloud will be deleted after 2 weeks; please export it if you wish to have a local copy.
+
+-   This workshop was originally developed for the [NRC Women in Science and Innovation Coding Group](https://github.com/yoitsjenna/nRc-WiSI).
+
+-   📣 indicates instructions and 💡 indicates tips.
+
+## ⏪ What did we discuss last time?
+
+-   Packages contain code, documentation, and sample data in a standardized format that can be installed by users.
+
+-   tidyverse is a collection of popular packages (i.e., a meta-package) designed for data science.
+
+-   [ggplot2](https://github.com/tidyverse/ggplot2) and [dplyr](https://github.com/tidyverse/dplyr) are packages for data visualization and manipulation, respectively.
+
+-   Creating a ggplot2 object is like building a layered cake!
+
+    ![](template.PNG){width="500"}
+
+## 📊 Bar plots (10 min, 12:10 pm)
+
+📣 Read the data from last class:
+
+```{r import-data}
+data <- readr::read_csv("french_trains.csv")
+
+data
+```
+
+💡 Each row summarizes information on trips from one station to another for a given month and year.
+
+-   E.g., the first row captures information on trips from **AIX EN PROVENCE** (Aix-en-Provence) to **PARIS LYON** (Paris-Gare-de-Lyon) for the month of **JANUARY 2015.**
+
+📣 Create a grouped bar plot to compare the number of departures from Paris-Nord in 2015 and 2016, by destination:
+
+```{r bar-plot}
+bar_plt <- data |> 
+  select(departure_station, year, arrival_station, total_num_trips) |> 
+  filter(departure_station == "PARIS NORD",
+         year %in% c(2015, 2016)) |>
+  mutate(year = as.factor(year)) |> 
+  group_by(year, arrival_station) |> 
+  summarise(n = sum(total_num_trips), .groups = "drop") |> 
+  ggplot(aes(x = arrival_station, y = n, fill = year)) +
+  geom_bar(stat = "identity", position = "dodge") 
+
+bar_plt
+```
+
+📣 Create a horizontal bar plot:
+
+```{r h-bar-plot}
+h_bar_plt <- bar_plt +
+  coord_flip() # flip cartesian coordinates
+
+h_bar_plt
+```
+
+## 🖌️ Changing colors (10 min, 12:20 pm)
+
+📣 Change colors manually:
+
+```{r change-fill-manual}
+bar_plt +
+  scale_fill_manual(values=c("#651C32", "#F2827F")) 
+```
+
+💡 Use `scale_fill_*()` for bar, box, and violin plots; use `scale_color_*()` for scatter and line plots. We'll use the latter function in just a bit.
+
+📣 Change colors using the [RColorBrewer](https://r-graph-gallery.com/38-rcolorbrewers-palettes.html) package:
+
+```{r change-fill-brewer}
+display.brewer.all()
+
+bar_plt +
+  scale_fill_brewer(palette = "Pastel1")
+```
+
+📣 An estimated 2.6 million Canadians are colorblind. Create a colorblind-friendly plot using the RColorBrewer package:
+
+```{r change-fill-colorblind}
+display.brewer.all(colorblindFriendly = TRUE)
+
+bar_plt +
+  scale_fill_brewer(palette = "Set2")
+```
+
+## 📈 Plots, plots, plots, plots, plots, plots (10 min, 12:30 pm)
+
+📣 Create a box plot to show the distribution of the monthly number of trips from Paris-Gare-de-Lyon for each international destination:
+
+```{r box-plot}
+box_plt <- data |> 
+  filter(departure_station == "PARIS LYON",
+         service == "International") |> 
+  arrange(arrival_station) |> 
+  ggplot(aes(x = arrival_station, y = total_num_trips)) +
+  geom_boxplot() 
+
+box_plt
+```
+
+📣 Change one line of code to visualize the distributions using a violin plot:
+
+```{r violin-plot}
+violin_plt <- data |> 
+  filter(departure_station == "PARIS LYON",
+         service == "International") |> 
+  ggplot(aes(x = arrival_station, y = total_num_trips)) +
+  geom_violin()
+
+violin_plt
+```
+
+> A violin plot is more informative than a plain box plot. While a box plot only shows summary statistics such as mean/median and interquartile ranges, the violin plot shows the full distribution of the data. The difference is particularly useful when the data distribution is multimodal (more than one peak).
+
+— [Violin plot - Wikipedia](https://en.wikipedia.org/wiki/Violin_plot#:~:text=A%20violin%20plot%20is%20more,(more%20than%20one%20peak).)
+
+📣 Create a line plot to show how the monthly number of trips from Paris to multiple cities in Brittany fluctuate over time. Use **facets** to organize multiple line plots into a panel (i.e., one plot for 2015, another for 2016, and so on):
+
+```{r facet}
+brittany_cities <- c("RENNES", "BREST", "QUIMPER")
+
+facet_plt <- data |> 
+  filter(departure_station == "PARIS MONTPARNASSE",
+         arrival_station %in% brittany_cities) |> 
+  ggplot(aes(x = month, y = total_num_trips, color = arrival_station)) +
+  geom_line() +
+ facet_wrap(vars(year))
+
+facet_plt
+```
+
+💡 Organizing a sequence of panels in this fashion might be an appropriate use of screen space in some cases.
+
+## ✏️ Changing the look and feel (10 min, 12:40 pm)
+
+📣 Create a line plot to show how the monthly number of trips from Paris to multiple cities in Brittany fluctuate over time (from last class):
+
+1.  Force the y-axis to start at 0.
+
+2.  Add year-month labels to the x-axis.
+
+3.  Apply [pre-existing themes](https://ggplot2.tidyverse.org/reference/ggtheme.html).
+
+4.  Change elements that are specified by the theme.
+
+```{r look-and-feel}
+brittany_plt <- data |> 
+  filter(departure_station == "PARIS MONTPARNASSE",
+         arrival_station %in% brittany_cities) |> 
+  ggplot(aes(x = date, y = total_num_trips, color = arrival_station)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0, 700), expand = c(0, 0)) +
+  scale_x_date(date_breaks = "4 months", date_labels = "%b %Y") +
+  scale_color_brewer(palette = "Dark2") +
+  labs(title = "Monthly number of trips from Paris to cities in Brittany",
+       y = "Monthly number of trips",
+       color = "Arrival station") +
+  theme_minimal()
+
+brittany_plt +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.9)),
+        plot.title = element_text(hjust = 0.5))
+```
+
+💡 Modify the theme to customize the non-data components of your plots (e.g., titles, labels, grid lines). Make sure to call `theme_minimal()` before `theme()` or else the modifications you have specified will be overwritten.
+
+📣 Save and apply our custom theme:
+
+```{r apply-custom-theme}
+theme_custom <- theme(axis.title.x = element_blank(),
+                      axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.9)),
+                      plot.title = element_text(hjust = 0.5))
+
+brittany_plt <- brittany_plt + theme_custom
+```
+
+💡 A system like this allows us to systematically make the same changes across multiple plots with less typing!
+
+## 💾 Saving our masterpieces (2 min, 12:45 pm)
+
+```{r ggsave}
+ggsave(filename = "brittany.png", 
+       plot = brittany_plt, 
+       path = here::here("03_ggplot2-02_13-JUL-2023"))
+```
+
+💡 By default, if you don't specify the `plot` argument, the function will save the last plot displayed.
+
+## 📚 Extra resources (3 min, 12:47 pm)
+
+-   ⭐[From data to Viz \| Find the graphic you need (data-to-viz.com)](https://www.data-to-viz.com/)
+
+-   ⭐[Be Awesome in ggplot2: A Practical Guide to be Highly Effective - R software and data visualization - Easy Guides - Wiki - STHDA](http://www.sthda.com/english/wiki/be-awesome-in-ggplot2-a-practical-guide-to-be-highly-effective-r-software-and-data-visualization)
+
+-   [Modify components of a theme --- theme • ggplot2 (tidyverse.org)](https://ggplot2.tidyverse.org/reference/theme.html)
+
+-   [Get, set, and modify the active theme --- theme_get • ggplot2 (tidyverse.org)](https://ggplot2.tidyverse.org/reference/theme_get.html)
